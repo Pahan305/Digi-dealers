@@ -1,0 +1,915 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Digi Dealers | Premium Digital Products</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/controls/OrbitControls.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.5.0/p5.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          },
+          colors: {
+            primary: {
+              50: '#f0fdf4',
+              100: '#dcfce7',
+              200: '#bbf7d0',
+              300: '#86efac',
+              400: '#4ade80',
+              500: '#22c55e',
+              600: '#16a34a',
+              700: '#15803d',
+              800: '#166534',
+              900: '#14532d',
+            },
+            dark: {
+              900: '#0a0a0a',
+              800: '#1a1a1a',
+              700: '#2a2a2a',
+              600: '#3a3a3a',
+            }
+          },
+          animation: {
+            'float': 'float 6s ease-in-out infinite',
+            'float-reverse': 'float-reverse 6s ease-in-out infinite',
+            'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+          },
+          keyframes: {
+            float: {
+              '0%, 100%': { transform: 'translateY(0)' },
+              '50%': { transform: 'translateY(-10px)' },
+            },
+            'float-reverse': {
+              '0%, 100%': { transform: 'translateY(0)' },
+              '50%': { transform: 'translateY(10px)' },
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    html {
+      scroll-behavior: smooth;
+    }
+    .gradient-text {
+      background: linear-gradient(90deg, #22c55e 0%, #3b82f6 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+    .card-hover {
+      transition: all 0.3s ease;
+    }
+    .card-hover:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    }
+    .blob {
+      filter: blur(40px);
+      opacity: 0.2;
+    }
+    #canvas-container {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+      opacity: 0.3;
+    }
+  </style>
+</head>
+<body class="bg-dark-900 text-gray-100 font-sans antialiased overflow-x-hidden">
+
+  <!-- 3D Background -->
+  <div id="threejs-container" class="fixed inset-0 -z-10 opacity-20"></div>
+  
+  <!-- Animated Blobs -->
+  <div class="fixed -z-20 inset-0 overflow-hidden">
+    <div class="absolute w-80 h-80 rounded-full bg-primary-500 blob animation-float left-10 top-20"></div>
+    <div class="absolute w-96 h-96 rounded-full bg-blue-500 blob animation-float-reverse right-10 top-1/3"></div>
+    <div class="absolute w-64 h-64 rounded-full bg-emerald-500 blob animation-float left-1/3 bottom-20"></div>
+  </div>
+
+  <!-- Header -->
+  <header class="relative py-12 md:py-20">
+    <div class="container mx-auto px-4">
+      <nav class="flex justify-between items-center mb-12">
+        <div class="text-2xl font-bold gradient-text">Digi Dealers</div>
+        <div class="hidden md:flex space-x-8">
+          <a href="#home" class="text-gray-300 hover:text-primary-400 transition">Home</a>
+          <a href="#products" class="text-gray-300 hover:text-primary-400 transition">Products</a>
+          <a href="#features" class="text-gray-300 hover:text-primary-400 transition">Features</a>
+          <a href="#testimonials" class="text-gray-300 hover:text-primary-400 transition">Testimonials</a>
+          <a href="#contact" class="text-gray-300 hover:text-primary-400 transition">Contact</a>
+        </div>
+        <button class="md:hidden text-gray-300">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+        </button>
+      </nav>
+      
+      <div class="text-center max-w-4xl mx-auto">
+        <h1 class="text-4xl md:text-6xl font-bold mb-6 leading-tight">
+          <span class="gradient-text">Premium Digital Products</span><br>
+          At Affordable Prices
+        </h1>
+        <p class="text-xl text-gray-400 mb-10 max-w-2xl mx-auto">
+          Unlock your potential with our curated collection of digital tools, templates, and assets. Instant delivery, lifetime access.
+        </p>
+        <div class="flex flex-col sm:flex-row justify-center gap-4">
+          <a href="#products" class="bg-primary-500 hover:bg-primary-600 text-white px-8 py-3 rounded-full font-semibold transition shadow-lg hover:shadow-primary-500/30">
+            Browse Products
+          </a>
+          <a href="#features" class="bg-dark-700 hover:bg-dark-600 text-white px-8 py-3 rounded-full font-semibold transition border border-dark-600">
+            Learn More
+          </a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Stats -->
+  <section class="py-12 bg-dark-800">
+    <div class="container mx-auto px-4">
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+        <div class="p-6">
+          <div class="text-4xl font-bold text-primary-500 mb-2">1,500+</div>
+          <div class="text-gray-400">Happy Customers</div>
+        </div>
+        <div class="p-6">
+          <div class="text-4xl font-bold text-primary-500 mb-2">50+</div>
+          <div class="text-gray-400">Digital Products</div>
+        </div>
+        <div class="p-6">
+          <div class="text-4xl font-bold text-primary-500 mb-2">Instant</div>
+          <div class="text-gray-400">Delivery</div>
+        </div>
+        <div class="p-6">
+          <div class="text-4xl font-bold text-primary-500 mb-2">24/7</div>
+          <div class="text-gray-400">Support</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Products -->
+  <section id="products" class="py-20">
+    <div class="container mx-auto px-4">
+      <div class="text-center mb-16">
+        <h2 class="text-3xl md:text-4xl font-bold mb-4">Our <span class="gradient-text">Digital Products</span></h2>
+        <p class="text-gray-400 max-w-2xl mx-auto">Carefully curated digital assets to boost your productivity, creativity, and business</p>
+      </div>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <!-- Product 1 -->
+        <div class="bg-dark-800 rounded-xl p-6 card-hover border border-dark-700">
+          <div class="bg-dark-700 rounded-lg p-4 mb-6 h-40 flex items-center justify-center">
+            <div class="w-20 h-20 rounded-full bg-primary-500/20 flex items-center justify-center">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-primary-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z" />
+              </svg>
+            </div>
+          </div>
+          <h3 class="text-xl font-bold mb-2">Canva Pro - Lifetime</h3>
+          <p class="text-gray-400 mb-4">Unlock premium design features with lifetime access to Canva Pro. No monthly fees, unlimited assets.</p>
+          <div class="flex justify-between items-center">
+            <span class="text-2xl font-bold text-primary-500">$49.99</span>
+            <button class="bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-lg text-sm font-semibold transition">
+              Get Now
+            </button>
+          </div>
+        </div>
+        
+        <!-- Product 2 -->
+        <div class="bg-dark-800 rounded-xl p-6 card-hover border border-dark-700">
+          <div class="bg-dark-700 rounded-lg p-4 mb-6 h-40 flex items-center justify-center">
+            <div class="w-20 h-20 rounded-full bg-blue-500/20 flex items-center justify-center">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+            </div>
+          </div>
+          <h3 class="text-xl font-bold mb-2">Notion Master Pack</h3>
+          <p class="text-gray-400 mb-4">50+ premium Notion templates for productivity, education, business, and personal organization.</p>
+          <div class="flex justify-between items-center">
+            <span class="text-2xl font-bold text-primary-500">$29.99</span>
+            <button class="bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-lg text-sm font-semibold transition">
+              Get Now
+            </button>
+          </div>
+        </div>
+        
+        <!-- Product 3 -->
+        <div class="bg-dark-800 rounded-xl p-6 card-hover border border-dark-700">
+          <div class="bg-dark-700 rounded-lg p-4 mb-6 h-40 flex items-center justify-center">
+            <div class="w-20 h-20 rounded-full bg-purple-500/20 flex items-center justify-center">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-purple-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+              </svg>
+            </div>
+          </div>
+          <h3 class="text-xl font-bold mb-2">AI Prompt Genius</h3>
+          <p class="text-gray-400 mb-4">1000+ premium AI prompts for ChatGPT, Midjourney, and other AI tools across all industries.</p>
+          <div class="flex justify-between items-center">
+            <span class="text-2xl font-bold text-primary-500">$39.99</span>
+            <button class="bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-lg text-sm font-semibold transition">
+              Get Now
+            </button>
+          </div>
+        </div>
+        
+        <!-- Product 4 -->
+        <div class="bg-dark-800 rounded-xl p-6 card-hover border border-dark-700">
+          <div class="bg-dark-700 rounded-lg p-4 mb-6 h-40 flex items-center justify-center">
+            <div class="w-20 h-20 rounded-full bg-amber-500/20 flex items-center justify-center">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+              </svg>
+            </div>
+          </div>
+          <h3 class="text-xl font-bold mb-2">Social Media Toolkit</h3>
+          <p class="text-gray-400 mb-4">500+ templates for Instagram, Twitter, LinkedIn with Canva files and content strategy guide.</p>
+          <div class="flex justify-between items-center">
+            <span class="text-2xl font-bold text-primary-500">$34.99</span>
+            <button class="bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-lg text-sm font-semibold transition">
+              Get Now
+            </button>
+          </div>
+        </div>
+        
+        <!-- Product 5 -->
+        <div class="bg-dark-800 rounded-xl p-6 card-hover border border-dark-700">
+          <div class="bg-dark-700 rounded-lg p-4 mb-6 h-40 flex items-center justify-center">
+            <div class="w-20 h-20 rounded-full bg-emerald-500/20 flex items-center justify-center">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+          </div>
+          <h3 class="text-xl font-bold mb-2">Digital Marketing Bible</h3>
+          <p class="text-gray-400 mb-4">Complete guide with templates, swipe files, and strategies for digital marketing success.</p>
+          <div class="flex justify-between items-center">
+            <span class="text-2xl font-bold text-primary-500">$49.99</span>
+            <button class="bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-lg text-sm font-semibold transition">
+              Get Now
+            </button>
+          </div>
+        </div>
+        
+        <!-- Product 6 -->
+        <div class="bg-dark-800 rounded-xl p-6 card-hover border border-dark-700">
+          <div class="bg-dark-700 rounded-lg p-4 mb-6 h-40 flex items-center justify-center">
+            <div class="w-20 h-20 rounded-full bg-pink-500/20 flex items-center justify-center">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-pink-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4M4 20h16a1 1 0 001-1V5a1 1 0 00-1-1H4a1 1 0 00-1 1v14a1 1 0 001 1z" />
+              </svg>
+            </div>
+          </div>
+          <h3 class="text-xl font-bold mb-2">Video Editing Presets</h3>
+          <p class="text-gray-400 mb-4">Premiere Pro & DaVinci Resolve presets including transitions, LUTs, and motion graphics.</p>
+          <div class="flex justify-between items-center">
+            <span class="text-2xl font-bold text-primary-500">$39.99</span>
+            <button class="bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-lg text-sm font-semibold transition">
+              Get Now
+            </button>
+          </div>
+        </div>
+      </div>
+      
+      <div class="text-center mt-12">
+        <button class="bg-dark-700 hover:bg-dark-600 text-white px-8 py-3 rounded-full font-semibold transition border border-dark-600 inline-flex items-center">
+          View All Products
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-2" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features -->
+  <section id="features" class="py-20 bg-dark-800">
+    <div class="container mx-auto px-4">
+      <div class="text-center mb-16">
+        <h2 class="text-3xl md:text-4xl font-bold mb-4">Why Choose <span class="gradient-text">Digi Dealers?</span></h2>
+        <p class="text-gray-400 max-w-2xl mx-auto">We're not just another digital store - we provide exceptional value and service</p>
+      </div>
+      
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div class="bg-dark-700 rounded-xl p-8 border border-dark-600">
+          <div class="w-14 h-14 rounded-lg bg-primary-500/10 flex items-center justify-center mb-6">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-primary-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+            </svg>
+          </div>
+          <h3 class="text-xl font-bold mb-3">Instant Delivery</h3>
+          <p class="text-gray-400">Get your digital products immediately after payment. No waiting, no delays - just instant access.</p>
+        </div>
+        
+        <div class="bg-dark-700 rounded-xl p-8 border border-dark-600">
+          <div class="w-14 h-14 rounded-lg bg-blue-500/10 flex items-center justify-center mb-6">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <h3 class="text-xl font-bold mb-3">Best Prices</h3>
+          <p class="text-gray-400">We offer the most competitive prices in the market without compromising on quality.</p>
+        </div>
+        
+        <div class="bg-dark-700 rounded-xl p-8 border border-dark-600">
+          <div class="w-14 h-14 rounded-lg bg-purple-500/10 flex items-center justify-center mb-6">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-purple-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+            </svg>
+          </div>
+          <h3 class="text-xl font-bold mb-3">Verified Products</h3>
+          <p class="text-gray-400">Every product is thoroughly tested and verified to ensure it works as described.</p>
+        </div>
+        
+        <div class="bg-dark-700 rounded-xl p-8 border border-dark-600">
+          <div class="w-14 h-14 rounded-lg bg-amber-500/10 flex items-center justify-center mb-6">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z" />
+            </svg>
+          </div>
+          <h3 class="text-xl font-bold mb-3">24/7 Support</h3>
+          <p class="text-gray-400">Our team is always available to help with any questions or issues you might have.</p>
+        </div>
+        
+        <div class="bg-dark-700 rounded-xl p-8 border border-dark-600">
+          <div class="w-14 h-14 rounded-lg bg-emerald-500/10 flex items-center justify-center mb-6">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+            </svg>
+          </div>
+          <h3 class="text-xl font-bold mb-3">Secure Payments</h3>
+          <p class="text-gray-400">All transactions are encrypted and secure. We never store your payment details.</p>
+        </div>
+        
+        <div class="bg-dark-700 rounded-xl p-8 border border-dark-600">
+          <div class="w-14 h-14 rounded-lg bg-pink-500/10 flex items-center justify-center mb-6">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-pink-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+          </div>
+          <h3 class="text-xl font-bold mb-3">Lifetime Updates</h3>
+          <p class="text-gray-400">Get free updates for all your purchased products for life.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Testimonials -->
+  <section id="testimonials" class="py-20">
+    <div class="container mx-auto px-4">
+      <div class="text-center mb-16">
+        <h2 class="text-3xl md:text-4xl font-bold mb-4">What Our <span class="gradient-text">Customers Say</span></h2>
+        <p class="text-gray-400 max-w-2xl mx-auto">Don't just take our word for it - hear from our satisfied customers</p>
+      </div>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div class="bg-dark-800 rounded-xl p-8 border border-dark-700">
+          <div class="flex items-center mb-4">
+            <div class="w-12 h-12 rounded-full bg-primary-500/10 flex items-center justify-center text-primary-500 font-bold mr-4">AS</div>
+            <div>
+              <h4 class="font-bold">Anusha Silva</h4>
+              <div class="flex text-amber-400">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                </svg>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                </svg>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                </svg>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                </svg>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                </svg>
+              </div>
+            </div>
+          </div>
+          <p class="text-gray-300">"The Canva Pro lifetime deal was exactly what I needed for my design business. Got it instantly after payment and it works perfectly!"</p>
+        </div>
+        
+        <div class="bg-dark-800 rounded-xl p-8 border border-dark-700">
+          <div class="flex items-center mb-4">
+            <div class="w-12 h-12 rounded-full bg-blue-500/10 flex items-center justify-center text-blue-500 font-bold mr-4">RP</div>
+            <div>
+              <h4 class="font-bold">Raj Perera</h4>
+              <div class="flex text-amber-400">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                </svg>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                </svg>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                </svg>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                </svg>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                </svg>
+              </div>
+            </div>
+          </div>
+          <p class="text-gray-300">"The AI Prompt Book has transformed how I use ChatGPT for my content business. Worth every penny and more!"</p>
+        </div>
+        
+        <div class="bg-dark-800 rounded-xl p-8 border border-dark-700">
+          <div class="flex items-center mb-4">
+            <div class="w-12 h-12 rounded-full bg-purple-500/10 flex items-center justify-center text-purple-500 font-bold mr-4">SK</div>
+            <div>
+              <h4 class="font-bold">Saman Kumara</h4>
+              <div class="flex text-amber-400">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                </svg>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                </svg>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                </svg>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                </svg>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+                </svg>
+              </div>
+            </div>
+          </div>
+          <p class="text-gray-300">"Customer support helped me set up my Notion templates within minutes. Very impressed with the service!"</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="py-20 bg-dark-800">
+    <div class="container mx-auto px-4">
+      <div class="text-center mb-16">
+        <h2 class="text-3xl md:text-4xl font-bold mb-4">Frequently Asked <span class="gradient-text">Questions</span></h2>
+        <p class="text-gray-400 max-w-2xl mx-auto">Everything you need to know about our products and services</p>
+      </div>
+      
+      <div class="max-w-3xl mx-auto">
+        <div class="space-y-4">
+          <div class="bg-dark-700 rounded-xl p-6 border border-dark-600">
+            <button class="flex justify-between items-center w-full text-left">
+              <h3 class="font-semibold text-lg">How does the instant delivery work?</h3>
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+              </svg>
+            </button>
+            <div class="mt-4 text-gray-400">
+              After your payment is confirmed, you'll receive an email with download links and access instructions immediately. For software accounts (like Canva Pro), you'll get login credentials or an invitation to join a team.
+            </div>
+          </div>
+          
+          <div class="bg-dark-700 rounded-xl p-6 border border-dark-600">
+            <button class="flex justify-between items-center w-full text-left">
+              <h3 class="font-semibold text-lg">Are these products legal to resell?</h3>
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+              </svg>
+            </button>
+            <div class="mt-4 text-gray-400">
+              Yes, all our products are either licensed for resale, original creations, or come with proper redistribution rights. We carefully vet each product to ensure compliance with terms of service.
+            </div>
+          </div>
+          
+          <div class="bg-dark-700 rounded-xl p-6 border border-dark-600">
+            <button class="flex justify-between items-center w-full text-left">
+              <h3 class="font-semibold text-lg">What payment methods do you accept?</h3>
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+              </svg>
+            </button>
+            <div class="mt-4 text-gray-400">
+              We accept all major credit/debit cards, PayPal, and for Sri Lankan customers, we also accept bank transfers and mobile payment solutions like FriMi and Genie.
+            </div>
+          </div>
+          
+          <div class="bg-dark-700 rounded-xl p-6 border border-dark-600">
+            <button class="flex justify-between items-center w-full text-left">
+              <h3 class="font-semibold text-lg">What if I have issues with a product?</h3>
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+              </svg>
+            </button>
+            <div class="mt-4 text-gray-400">
+              Our support team is available 24/7 via WhatsApp and email. We guarantee all our products and will provide replacements or refunds if you're not satisfied.
+            </div>
+          </div>
+          
+          <div class="bg-dark-700 rounded-xl p-6 border border-dark-600">
+            <button class="flex justify-between items-center w-full text-left">
+              <h3 class="font-semibold text-lg">Do you offer discounts for bulk purchases?</h3>
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+              </svg>
+            </button>
+            <div class="mt-4 text-gray-400">
+              Yes! Contact us directly for custom pricing if you want to purchase multiple products or need licenses for teams/businesses.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="py-20 relative overflow-hidden">
+    <div class="absolute inset-0 -z-10">
+      <div class="absolute w-full h-full bg-gradient-to-br from-dark-900 via-dark-800/50 to-dark-900"></div>
+      <div class="absolute w-96 h-96 rounded-full bg-primary-500/10 blob animation-float left-1/4 top-1/4"></div>
+      <div class="absolute w-80 h-80 rounded-full bg-blue-500/10 blob animation-float-reverse right-1/4 bottom-1/4"></div>
+    </div>
+    
+    <div class="container mx-auto px-4 text-center">
+      <h2 class="text-3xl md:text-5xl font-bold mb-6">Ready to Boost Your <span class="gradient-text">Digital Toolkit?</span></h2>
+      <p class="text-xl text-gray-400 max-w-3xl mx-auto mb-10">Join thousands of satisfied customers who've unlocked premium digital products at unbeatable prices.</p>
+      <div class="flex flex-col sm:flex-row justify-center gap-4">
+        <a href="#products" class="bg-primary-500 hover:bg-primary-600 text-white px-8 py-3 rounded-full font-semibold transition shadow-lg hover:shadow-primary-500/30">
+          Browse All Products
+        </a>
+        <a href="#contact" class="bg-dark-700 hover:bg-dark-600 text-white px-8 py-3 rounded-full font-semibold transition border border-dark-600 inline-flex items-center justify-center">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+          </svg>
+          Contact Support
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Contact -->
+  <section id="contact" class="py-20">
+    <div class="container mx-auto px-4">
+      <div class="max-w-4xl mx-auto bg-dark-800 rounded-xl p-8 md:p-12 border border-dark-700">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+          <div>
+            <h2 class="text-3xl font-bold mb-6 gradient-text">Get In Touch</h2>
+            <p class="text-gray-400 mb-8">Have questions or need help? Reach out to our friendly support team anytime.</p>
+            
+            <div class="space-y-6">
+              <div class="flex items-start">
+                <div class="w-10 h-10 rounded-lg bg-primary-500/10 flex items-center justify-center text-primary-500 mr-4 mt-1">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                  </svg>
+                </div>
+                <div>
+                  <h3 class="font-semibold">Email Us</h3>
+                  <p class="text-gray-400">digidealers@gmail.com</p>
+                </div>
+              </div>
+              
+              <div class="flex items-start">
+                <div class="w-10 h-10 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-500 mr-4 mt-1">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                  </svg>
+                </div>
+                <div>
+                  <h3 class="font-semibold">Call Us</h3>
+                  <p class="text-gray-400">+94 727 114 552</p>
+                </div>
+              </div>
+              
+              <div class="flex items-start">
+                <div class="w-10 h-10 rounded-lg bg-purple-500/10 flex items-center justify-center text-purple-500 mr-4 mt-1">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z" />
+                  </svg>
+                </div>
+                <div>
+                  <h3 class="font-semibold">WhatsApp</h3>
+                  <p class="text-gray-400">+94 727 114 552</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div>
+            <form class="space-y-4">
+              <div>
+                <label for="name" class="block text-sm font-medium text-gray-300 mb-1">Your Name</label>
+                <input type="text" id="name" class="w-full bg-dark-700 border border-dark-600 text-white px-4 py-3 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent" placeholder="John Doe">
+              </div>
+              <div>
+                <label for="email" class="block text-sm font-medium text-gray-300 mb-1">Email Address</label>
+                <input type="email" id="email" class="w-full bg-dark-700 border border-dark-600 text-white px-4 py-3 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent" placeholder="you@example.com">
+              </div>
+              <div>
+                <label for="subject" class="block text-sm font-medium text-gray-300 mb-1">Subject</label>
+                <input type="text" id="subject" class="w-full bg-dark-700 border border-dark-600 text-white px-4 py-3 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent" placeholder="How can we help?">
+              </div>
+              <div>
+                <label for="message" class="block text-sm font-medium text-gray-300 mb-1">Message</label>
+                <textarea id="message" rows="4" class="w-full bg-dark-700 border border-dark-600 text-white px-4 py-3 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent" placeholder="Your message here..."></textarea>
+              </div>
+              <button type="submit" class="w-full bg-primary-500 hover:bg-primary-600 text-white py-3 rounded-lg font-semibold transition">
+                Send Message
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="bg-dark-900 py-12 border-t border-dark-800">
+    <div class="container mx-auto px-4">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+        <div>
+          <h3 class="text-xl font-bold gradient-text mb-4">Digi Dealers</h3>
+          <p class="text-gray-400">Affordable, reliable digital products for creators, entrepreneurs, and businesses.</p>
+        </div>
+        <div>
+          <h4 class="font-semibold text-gray-300 mb-4">Products</h4>
+          <ul class="space-y-2">
+            <li><a href="#" class="text-gray-400 hover:text-primary-400 transition">Design Tools</a></li>
+            <li><a href="#" class="text-gray-400 hover:text-primary-400 transition">Productivity</a></li>
+            <li><a href="#" class="text-gray-400 hover:text-primary-400 transition">AI Resources</a></li>
+            <li><a href="#" class="text-gray-400 hover:text-primary-400 transition">Marketing</a></li>
+            <li><a href="#" class="text-gray-400 hover:text-primary-400 transition">All Products</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-semibold text-gray-300 mb-4">Company</h4>
+          <ul class="space-y-2">
+            <li><a href="#about" class="text-gray-400 hover:text-primary-400 transition">About Us</a></li>
+            <li><a href="#features" class="text-gray-400 hover:text-primary-400 transition">Features</a></li>
+            <li><a href="#testimonials" class="text-gray-400 hover:text-primary-400 transition">Testimonials</a></li>
+            <li><a href="#contact" class="text-gray-400 hover:text-primary-400 transition">Contact</a></li>
+            <li><a href="#" class="text-gray-400 hover:text-primary-400 transition">FAQ</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-semibold text-gray-300 mb-4">Legal</h4>
+          <ul class="space-y-2">
+            <li><a href="#" class="text-gray-400 hover:text-primary-400 transition">Privacy Policy</a></li>
+            <li><a href="#" class="text-gray-400 hover:text-primary-400 transition">Terms of Service</a></li>
+            <li><a href="#" class="text-gray-400 hover:text-primary-400 transition">Refund Policy</a></li>
+          </ul>
+        </div>
+      </div>
+      
+      <div class="pt-8 border-t border-dark-800 flex flex-col md:flex-row justify-between items-center">
+        <p class="text-gray-500 mb-4 md:mb-0">&copy; 2025 Digi Dealers. All rights reserved.</p>
+        <div class="flex space-x-6">
+          <a href="#" class="text-gray-500 hover:text-primary-400 transition">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z" />
+            </svg>
+          </a>
+          <a href="#" class="text-gray-500 hover:text-primary-400 transition">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" />
+            </svg>
+          </a>
+          <a href="#" class="text-gray-500 hover:text-primary-400 transition">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z" />
+            </svg>
+          </a>
+          <a href="#" class="text-gray-500 hover:text-primary-400 transition">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M22.675 0h-21.35c-.732 0-1.325.593-1.325 1.325v21.351c0 .731.593 1.324 1.325 1.324h11.495v-9.294h-3.128v-3.622h3.128v-2.671c0-3.1 1.893-4.788 4.659-4.788 1.325 0 2.463.099 2.795.143v3.24l-1.918.001c-1.504 0-1.795.715-1.795 1.763v2.313h3.587l-.467 3.622h-3.12v9.293h6.116c.73 0 1.323-.593 1.323-1.325v-21.35c0-.732-.593-1.325-1.325-1.325z" />
+            </svg>
+          </a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Three.js Background -->
+  <script>
+    // Three.js background animation
+    document.addEventListener('DOMContentLoaded', () => {
+      const container = document.getElementById('threejs-container');
+      
+      // Scene setup
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+      const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.setPixelRatio(window.devicePixelRatio);
+      container.appendChild(renderer.domElement);
+      
+      // Particles
+      const particlesGeometry = new THREE.BufferGeometry();
+      const particleCount = 500;
+      
+      const posArray = new Float32Array(particleCount * 3);
+      for(let i = 0; i < particleCount * 3; i++) {
+        posArray[i] = (Math.random() - 0.5) * 10;
+      }
+      
+      particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+      
+      const particlesMaterial = new THREE.PointsMaterial({
+        size: 0.02,
+        color: 0x22c55e,
+        transparent: true,
+        opacity: 0.8
+      });
+      
+      const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
+      scene.add(particlesMesh);
+      
+      camera.position.z = 3;
+      
+      // Animation loop
+      function animate() {
+        requestAnimationFrame(animate);
+        
+        particlesMesh.rotation.x += 0.0005;
+        particlesMesh.rotation.y += 0.0005;
+        
+        renderer.render(scene, camera);
+      }
+      
+      animate();
+      
+      // Handle window resize
+      window.addEventListener('resize', () => {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+      });
+    });
+  </script>
+
+  <!-- p5.js Animation -->
+  <script>
+    // p5.js interactive elements
+    new p5(p => {
+      let nodes = [];
+      const maxDist = 150;
+      
+      p.setup = () => {
+        const canvas = p.createCanvas(p.windowWidth, p.windowHeight);
+        canvas.position(0, 0);
+        canvas.style('z-index', '-1');
+        canvas.style('position', 'fixed');
+        canvas.style('opacity', '0.1');
+        
+        // Create nodes
+        for(let i = 0; i < 30; i++) {
+          nodes.push({
+            x: p.random(p.width),
+            y: p.random(p.height),
+            vx: p.random(-0.5, 0.5),
+            vy: p.random(-0.5, 0.5)
+          });
+        }
+      };
+      
+      p.draw = () => {
+        p.clear();
+        p.stroke(34, 197, 94, 50);
+        p.strokeWeight(1);
+        
+        // Update and draw nodes
+        for(let i = 0; i < nodes.length; i++) {
+          const node = nodes[i];
+          
+          // Update position
+          node.x += node.vx;
+          node.y += node.vy;
+          
+          // Bounce off edges
+          if(node.x < 0 || node.x > p.width) node.vx *= -1;
+          if(node.y < 0 || node.y > p.height) node.vy *= -1;
+          
+          // Draw connections
+          for(let j = i + 1; j < nodes.length; j++) {
+            const other = nodes[j];
+            const d = p.dist(node.x, node.y, other.x, other.y);
+            if(d < maxDist) {
+              p.line(node.x, node.y, other.x, other.y);
+            }
+          }
+          
+          // Draw node
+          p.noStroke();
+          p.fill(34, 197, 94, 100);
+          p.ellipse(node.x, node.y, 4);
+        }
+      };
+      
+      p.windowResized = () => {
+        p.resizeCanvas(p.windowWidth, p.windowHeight);
+      };
+    }, document.body);
+  </script>
+
+  <!-- GSAP Animations -->
+  <script>
+    // GSAP animations for scroll effects
+    document.addEventListener('DOMContentLoaded', () => {
+      // Animate elements on scroll
+      gsap.utils.toArray('.card-hover').forEach(card => {
+        gsap.from(card, {
+          y: 50,
+          opacity: 0,
+          duration: 0.8,
+          scrollTrigger: {
+            trigger: card,
+            start: "top 80%",
+            toggleActions: "play none none none"
+          }
+        });
+      });
+      
+      // Header animation
+      gsap.from('header h1', {
+        y: -50,
+        opacity: 0,
+        duration: 1,
+        delay: 0.3
+      });
+      
+      gsap.from('header p', {
+        y: 50,
+        opacity: 0,
+        duration: 1,
+        delay: 0.5
+      });
+      
+      gsap.from('header .flex a', {
+        y: 50,
+        opacity: 0,
+        duration: 0.8,
+        delay: 0.7,
+        stagger: 0.2
+      });
+    });
+  </script>
+
+  <!-- Mobile menu toggle -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const mobileMenuButton = document.querySelector('.md\\:hidden.text-gray-300');
+      const mobileMenu = document.createElement('div');
+      mobileMenu.className = 'hidden fixed inset-0 bg-dark-900/95 z-50 flex flex-col items-center justify-center p-6';
+      mobileMenu.innerHTML = `
+        <button class="absolute top-6 right-6 text-gray-300">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+        <nav class="flex flex-col space-y-8 text-center">
+          <a href="#home" class="text-2xl font-medium text-gray-300 hover:text-primary-400 transition">Home</a>
+          <a href="#products" class="text-2xl font-medium text-gray-300 hover:text-primary-400 transition">Products</a>
+          <a href="#features" class="text-2xl font-medium text-gray-300 hover:text-primary-400 transition">Features</a>
+          <a href="#testimonials" class="text-2xl font-medium text-gray-300 hover:text-primary-400 transition">Testimonials</a>
+          <a href="#contact" class="text-2xl font-medium text-gray-300 hover:text-primary-400 transition">Contact</a>
+        </nav>
+      `;
+      document.body.appendChild(mobileMenu);
+      
+      mobileMenuButton.addEventListener('click', () => {
+        mobileMenu.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+      });
+      
+      mobileMenu.querySelector('button').addEventListener('click', () => {
+        mobileMenu.classList.add('hidden');
+        document.body.style.overflow = '';
+      });
+      
+      // Close menu when clicking on a link
+      mobileMenu.querySelectorAll('a').forEach(link => {
+        link.addEventListener('click', () => {
+          mobileMenu.classList.add('hidden');
+          document.body.style.overflow = '';
+        });
+      });
+    });
+  </script>
+</body>
+</html>
